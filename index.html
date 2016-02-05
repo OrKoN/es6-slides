@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Overview of ES6 features</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      /* Two-column layout */
+      .left-column {
+        width: 48%;
+        float: left;
+      }
+      .left-column h2:last-of-type, .left-column h3:last-child {
+        color: #000;
+      }
+      .right-column {
+        width: 48%;
+        float: right;
+      }
+      .clear {
+        clear: both;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Overview of ES6 Features
+
+### by Alex Rudenko
+    2016
+
+---
+
+# Agenda
+
+0. Intro
+1. Assignment Destructuring &#10007;
+2. Spread and Rest (not REST) &#10007;
+3. Arrow Functions &#10003;
+4. Template Literals (Strings) &#10003;
+5. Classes &#10003;
+6. Let this var be const &#10003;
+7. Symbols &#10003;
+8. Iterators &#10003;
+9. Object Literals &#10003;
+10. Generators &#10003;
+11. Promises &#10003;
+12. New Data Types &#10003;
+13. New Methods &#10003;
+14. Proxies &#10007;
+15. Reflection &#10007;
+16. Strings and Unicode &#10003;
+17. Import/Export &#10007;
+18. ES2016 / ES7s &#10007;
+
+&#10003; - available in node 4.2.*, &#10007; - not available in node 4.2.*
+---
+
+# Intro
+
+.center[
+  ![https://pbs.twimg.com/media/B4UaJfMCQAE67QB.png:medium](https://pbs.twimg.com/media/B4UaJfMCQAE67QB.png:medium)
+]
+
+- ES5 standardized in 2009
+- ES6 == ES2015 (standardized in June 2015)
+- ES7 == ES2016 (soon)
+
+---
+
+# Assignment Destructuring &#10007;
+
+.left-column[
+  ## ES6
+  ```js
+  let { clone } = lodash;
+
+  let { clone: myClone } = lodash;
+
+  let { first, , third } = [1, 2, 3];
+
+  function foo({a = 1, b = 3}) {
+    // a and b available
+    // a === 1, b === 3
+  }
+  ```
+]
+
+.right-column[
+  ## ES5
+  ```js
+  var clone = lodash.clone;
+
+  var myClone = lodash.clone;
+
+  var first = [1, 2, 3][0]; // etc
+
+  function foo(obj) {
+    var a = obj.a || 1;
+    var b = obj.b || 3;
+  }
+  ```
+]
+
+.clear[
+  Source/Details: https://ponyfoo.com/articles/es6-destructuring-in-depth
+]
+
+---
+
+# Spread and Rest (not REST) &#10007;
+
+.left-column[
+  ## ES6
+  ```js
+  function(...args) {
+    // args instanceof array === true
+  }
+
+
+
+
+  [head, ...tail] = [1, 2, 3, 4];
+  // head === 1, tail === [2, 3, 4]
+
+
+  new Date(...[2014, 1, 1]);
+  ```
+]
+
+.right-column[
+  ## ES5
+  ```js
+  function(/* arguments */) {
+    var args = Array
+      .prototype
+      .slice
+      .call(arguments, 0);
+  }
+
+  // equivalent? probably some
+  // function calls :-)
+
+
+  // apply + some other complex stuff
+  ```
+]
+
+.clear[
+  Source/Details: https://ponyfoo.com/articles/es6-spread-and-butter-in-depth
+]
+---
+
+## Arrow Functions &#10003;
+
+```js
+  // implicit return
+  [1, 2, 3].map(x => x + 1)
+
+  // explicit return
+  [1, 2, 3].map(x => {
+    return x + 1;
+  })
+
+  // implicit return of an object
+  [1, 2, 3].map(x => ({
+    newX: x + 1
+  }))
+
+  function foo() {
+    const c = 1;
+    this.a = 10;
+    this.b = [1, 2]
+      .map(x => x + this.a + c);
+      // this cannot be changed
+  }
+
+  exports.create = () => new Stuff();
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-arrow-functions-in-depth
+
+---
+
+## Template Literals (Strings) &#10003;
+
+```js
+  var a = 1;
+  var b = 2;
+
+  var msg = `A = ${a}, 2B = ${b * 2}`;
+
+  // also multi-line
+  // also can call functions
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-template-strings-in-depth
+---
+
+## Classes &#10003;
+
+```js
+class Booking {
+  constructor() {
+    this.id = id;
+  }
+  getId() {
+    return this.id;
+  }
+  static formatId(id) {
+    return id;
+  }
+}
+
+class Car2GoBooking extends Booking {
+  constructor(id, smth) {
+    super(id);
+  }
+  getId() {
+    return super.getId() + 'smth';
+  }
+}
+
+```
+---
+
+## Let this var be const &#10003;
+
+
+TDZ (Temporal Dead Zone)
+
+```js
+
+b = 10; // ok
+a = 10; // error
+c = 10; // error
+if (true) {
+  a = 10; // error
+  b = 10; // ok
+  c = 10; // error
+  let a = 1;
+  var b = 2;
+  const c = 3;
+  a = 10; // ok
+  b = 10; // ok
+  c = 10; // error
+}
+
+const obj = { a: 1};
+obj.a = 2; // ok
+
+```
+
+---
+
+## Symbols &#10003;
+
+
+- A new primitive type in ES6
+- `var symbol = Symbol()`
+- You can use symbols to avoid name clashes in property keys
+
+Source/Details: https://ponyfoo.com/articles/es6#table-of-contents
+
+---
+## Iterators &#10003;
+
+```js
+
+var str = {
+  [Symbol.iterator]: () => ({
+    items: ['p', 'a', 'y'],
+    next: function next () {
+      return {
+        done: this.items.length === 0,
+        value: this.items.shift()
+      }
+    }
+  })
+}
+
+for (let letter of str) {
+  console.log(letter)
+}
+
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-iterators-in-depth
+
+---
+## Object Literals &#10003;
+
+```js
+
+var foo = 1;
+
+var obj = {
+  foo,          // foo: foo,
+  f() {         // f: function() {}
+    return 'user';
+  }
+};
+
+var prefix = 'test';
+
+var obj2 = {
+  [prefix + 'Foo']: 'bar' // testFoo: 'bar'
+}
+
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-object-literal-features-in-depth
+
+---
+## Generators 1/2 &#10003;
+
+```js
+function* generator () {
+  yield 'b'
+  yield 'o'
+  yield 'o'
+  yield 'k'
+}
+
+var g = generator()
+for (let letter of g) {
+  console.log(letter);
+  // <- 'b'
+  // <- 'o'
+  // <- 'o'
+  // <- 'k'
+}
+
+var g = generator(); // see also https://github.com/tj/co
+while (true) {
+  let item = g.next()
+  if (item.done) {
+    break
+  }
+  console.log(item.value)
+}
+
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-generators-in-depth
+
+---
+
+## Generators 2/2 &#10003;
+
+```js
+var co = require('co');
+
+co(function *(){
+  // yield any promise
+  var result = yield Promise.resolve(true);
+}).catch(onerror);
+
+co(function *(){
+  // resolve multiple promises in parallel
+  var a = Promise.resolve(1);
+  var b = Promise.resolve(2);
+  var c = Promise.resolve(3);
+  var res = yield [a, b, c];
+  console.log(res);
+  // => [1, 2, 3]
+}).catch(onerror);
+
+// errors can be try/catched
+co(function *(){
+  try {
+    yield Promise.reject(new Error('boom'));
+  } catch (err) {
+    console.error(err.message); // "boom"
+ }
+}).catch(onerror);
+```
+
+See also: http://koajs.com/
+See also: http://www.2ality.com/2015/03/es6-generators.html
+
+---
+
+## Promises &#10003;
+
+```js
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, 'utf8', (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(data);
+    })
+  })
+}
+
+readFile('text.doc')
+  .then(data => console.log(data))
+  .catch(err => console.error(err));
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-promises-in-depth
+
+---
+## New Data Types &#10003;
+
+- Map
+
+  https://ponyfoo.com/articles/es6-maps-in-depth
+- WeakMap
+
+  https://ponyfoo.com/articles/es6-weakmaps-sets-and-weaksets-in-depth#es6-weakmaps
+- Set
+
+  https://ponyfoo.com/articles/es6-weakmaps-sets-and-weaksets-in-depth#es6-sets
+- WeakSet
+
+  https://ponyfoo.com/articles/es6-weakmaps-sets-and-weaksets-in-depth#es6-weaksets
+
+---
+## New Methods &#10003;
+
+- `Number.isNaN`, `Number.isFinite`
+- `Number.parseInt`, Number.parseFloat
+- `Number.isInteger`
+- `Number.EPSILON`
+- `Number.MAX_SAFE_INTEGER`
+- `Number.MIN_SAFE_INTEGER`
+- `Number.isSafeInteger`
+- `Math.sign` and others https://ponyfoo.com/articles/es6-math-additions-in-depth
+- `Array.from` and others https://ponyfoo.com/articles/es6-array-extensions-in-depth
+- `Object.assign`
+- `Object.is`
+- `Object.setPrototypeOf`
+- `Object.getOwnPropertySymbols`
+- `String.startsWith`, `endsWith`, `repeats` etc:
+  https://ponyfoo.com/articles/es6-strings-and-unicode-in-depth
+
+---
+## Proxies &#10007;
+
+> The Proxy object is used to define custom behavior for fundamental operations (e.g. property lookup, assignment, enumeration, function invocation, etc).
+
+```js
+var handler = {
+    get: function(target, name){
+        return name in target?
+            target[name] :
+            37;
+    }
+};
+
+var p = new Proxy({}, handler);
+p.a = 1;
+p.b = undefined;
+
+console.log(p.a, p.b); // 1, undefined
+console.log('c' in p, p.c); // false, 37
+```
+
+---
+
+## Reflection &#10007;
+
+```js
+var yay = Reflect
+  .defineProperty(target, 'foo', { value: 'bar' })
+```
+
+Source/Details: https://ponyfoo.com/articles/es6#reflection
+
+---
+## Import/Export &#10007;
+
+```js
+import $ from 'jquery'; // default import
+import { clone, equals } from 'lodash'; // named import
+
+function myFunc(obj) {
+  return clone(obj);
+}
+
+export default myFunc; // default export
+export myFunc; // named, myFunc will be exported
+export var a = 1; // named, a will be exported
+export { myFunc: moduleFunc }; // named with alias
+```
+
+Source/Details: https://ponyfoo.com/articles/es6-modules-in-depth
+
+---
+## ES2016 / ES7s &#10007;
+
+Two features:
+
+- The `Array.prototype.includes.includes` returns whether the provided reference value is included in the array or not.
+- `**` operator
+  ```js
+  1 ** 2 === Math.pow(1, 2)
+  ```
+
+Source/Details: https://ponyfoo.com/articles/es2016-features-and-ecmascript-as-a-living-standard
+
+---
+
+## Thanks!
+
+.center[
+  ![https://thumbsplus.tutsplus.com/uploads/users/16/posts/25139/preview_image/es6-1.png?height=300&width=300](https://thumbsplus.tutsplus.com/uploads/users/16/posts/25139/preview_image/es6-1.png?height=300&width=300)
+]
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
